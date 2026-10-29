@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<!-- Capa DETRÁS del sujeto: va entre base.mp4 y subject.mov. Fondo transparente: render con --transparent a .webm -->
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@1,900&display=block" rel="stylesheet">
+<style>
+  :root { --neon: #CCFF00; --coral: #FF6B4A; --ink: #0B0B0B; }
+  html, body { margin: 0; background: transparent; }
+  #stage { position: relative; width: 1080px; height: 1920px; overflow: hidden; }
+  .big {
+    position: absolute; left: 0; right: 0; text-align: center;
+    font: italic 900 300px/0.82 'Archivo', sans-serif; text-transform: uppercase;
+    letter-spacing: -6px; color: var(--neon); white-space: nowrap; transform-origin: 50% 50%;
+  }
+  .big span { display: inline-block; }
+  #l1 { top: 430px; } #l2 { top: 690px; color: var(--coral); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="big" id="l1"><span>PALABRA</span></div>
+  <div class="big" id="l2"><span>UNO</span></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="data.js"></script>
+<script src="studio.js"></script>
+<script>
+  // Edita textos y tiempos. El sujeto (subject.mov) tapa parte del texto: así parece que está delante.
+  // Primero las fuentes y el tamaño, después la animación: si el tamaño cambia con la animación ya armada, el texto salta.
+  document.fonts.ready.then(() => {
+    // Cada línea en un solo renglón, encogida hasta caber en 1000px. Se centra con text-align, sin transform:
+    // la única transformación es la de la animación (escala desde el centro y salida hacia arriba).
+    document.querySelectorAll('.big').forEach(el => {
+      const k = Math.min(1, 1000 / el.firstElementChild.offsetWidth);
+      el.style.fontSize = (parseFloat(getComputedStyle(el).fontSize) * k) + 'px';
+    });
+    // El hook se lee desde el frame 0: entra escalando desde grande, nunca desde invisible.
+    const tl = gsap.timeline({ paused: true });
+    tl.from('#l1', { scale: 1.6, duration: 0.45, ease: 'power4.out' }, 0)
+      .from('#l2', { scale: 1.6, duration: 0.45, ease: 'power4.out' }, 0.12)
+      .to('#l1, #l2', { scale: 1.06, duration: 2.2, ease: 'none' }, 0.6)
+      .to('#l1, #l2', { yPercent: -40, opacity: 0, duration: 0.3, ease: 'power2.in', stagger: 0.05 }, 2.8);
+    STUDIO.exportClip(tl);
+  });
+</script>
+</body>
+</html>

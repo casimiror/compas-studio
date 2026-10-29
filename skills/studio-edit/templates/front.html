@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<!-- Capa DELANTE de todo: subtítulos palabra a palabra (words) y una etiqueta que sigue al sujeto (track).
+     Fondo transparente: render con --transparent a .webm. Duración = la del video base (STUDIO.extra.duration). -->
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@1,900&family=Inter:wght@700;800&display=block" rel="stylesheet">
+<style>
+  :root { --neon: #CCFF00; --coral: #FF6B4A; --ink: #0B0B0B; --paper: #F5F5F5; }
+  html, body { margin: 0; background: transparent; }
+  #stage { position: relative; width: 1080px; height: 1920px; overflow: hidden; }
+  /* Zona segura de Reels: nada importante arriba de 220px, abajo de 1500px ni en los 140px de la derecha. */
+  #cap {
+    position: absolute; left: 70px; right: 160px; top: 1180px; text-align: center;
+    font: italic 900 92px/1 'Archivo', sans-serif; text-transform: uppercase; color: var(--paper);
+    text-shadow: 0 6px 0 rgba(0,0,0,.55), 0 0 30px rgba(0,0,0,.35);
+  }
+  #cap span { display: inline-block; margin: 0 10px; }
+  #cap span.on { color: var(--neon); }
+  #tag {
+    position: absolute; left: 0; top: 0; transform: translate(-50%, -100%);
+    background: var(--neon); color: var(--ink); font: 800 38px/1 'Inter', sans-serif;
+    padding: 16px 24px; border-radius: 999px; white-space: nowrap; opacity: 0;
+  }
+  #tag::after { content: ''; position: absolute; left: 50%; bottom: -14px; margin-left: -12px;
+    border: 12px solid transparent; border-top-color: var(--neon); border-bottom: 0; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="tag">@tienda</div>
+  <div id="cap"></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="data.js"></script>
+<script src="studio.js"></script>
+<script>
+  const X = STUDIO.extra || {};
+  const DUR = X.duration || 10;
+  const TAG = X.tag || null;               // {text, from, to}: etiqueta encima del sujeto
+  const cap = document.getElementById('cap');
+  const tag = document.getElementById('tag');
+  STUDIO.smoothTrack(4);
+
+  const tl = gsap.timeline({ paused: true });
+  tl.set({}, {}, DUR);                     // fija la duración total
+
+  // Subtítulos: una frase a la vez; la palabra que suena se pinta de neón.
+  const chunks = STUDIO.chunks(X.maxWords || 3);
+  function drawCaption(t) {
+    const c = chunks.find(c => t >= c.s - 0.05 && t < c.e + 0.15);
+    if (!c) { cap.innerHTML = ''; return; }
+    const key = c.s;
+    if (cap.dataset.k != key) {
+      cap.dataset.k = key;
+      cap.innerHTML = c.words.map(w => `<span>${w.w.replace(/[.,]$/, '')}</span>`).join('');
+    }
+    const p = Math.min(1, (t - c.s + 0.05) / 0.12);  // pop de entrada
+    cap.style.transform = `scale(${0.85 + 0.15 * p})`;
+    [...cap.children].forEach((el, i) => el.classList.toggle('on', t >= c.words[i].s && t < c.words[i].e + 0.1));
+  }
+
+  // Etiqueta: sigue la parte de arriba del sujeto.
+  if (TAG) tag.textContent = TAG.text;
+  function drawTag(t) {
+    const p = STUDIO.trackAt(t);
+    const on = TAG && p && t >= TAG.from && t <= TAG.to;
+    const fade = on ? Math.min(1, (t - TAG.from) / 0.2, (TAG.to - t) / 0.2) : 0;
+    tag.style.opacity = fade;
+    if (p) {
+      const tr = STUDIO.track;
+      tag.style.left = (p.cx * 1080 / tr.w) + 'px';
+      tag.style.top = Math.max(250, p.top * 1920 / tr.h - 30) + 'px';
+    }
+  }
+
+  STUDIO.exportClip(tl, t => { drawCaption(t); drawTag(t); });
+</script>
+</body>
+</html>

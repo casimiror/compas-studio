@@ -1,0 +1,9 @@
+{
+  "name": "webclip-render-scripts",
+  "private": true,
+  "type": "module",
+  "description": "Render helpers for the webclip skill — Playwright capture + ffmpeg encode.",
+  "dependencies": {
+    "playwright": "^1.62.0"
+  }
+}
