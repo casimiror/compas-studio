@@ -12,6 +12,8 @@ description: >
 
 # webclip
 
+> `<skills>` is the folder where the skills are installed (e.g. `~/.claude/skills` or the project's `.claude/skills`). Compas Studio skills are installed together, so one can call another's scripts.
+
 A quick way to turn a project's real design tokens and real assets (logo, screenshots,
 product shots) into a short animated video — preview instantly in a browser, render to
 a real video file only when it's ready. Built to avoid the overhead of the full
@@ -41,7 +43,7 @@ still write the composition HTML; tell the user where to preview and render.
 Run the probe from the target project's root:
 
 ```bash
-node ~/.claude/skills/webclip/scripts/probe-brand.mjs
+node <skills>/webclip/scripts/probe-brand.mjs
 ```
 
 It best-effort scans the current project for:
@@ -102,13 +104,13 @@ with the motion and content.
 One-time setup (per machine, not per video):
 
 ```bash
-cd ~/.claude/skills/webclip/scripts && npm install && npx playwright install chromium
+cd <skills>/webclip/scripts && npm install && npx playwright install chromium
 ```
 
 Then, for every render:
 
 ```bash
-node ~/.claude/skills/webclip/scripts/render.mjs path/to/composition.html \
+node <skills>/webclip/scripts/render.mjs path/to/composition.html \
   --out path/to/output.mp4 \
   --width 1080 --height 1920 --fps 30
 ```

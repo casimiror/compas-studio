@@ -34,17 +34,43 @@ marketing; `~/.config/compas-studio/proyectos.md` dice dónde está la de cada e
 Funciona en Mac con Apple Silicon, PC con GPU NVIDIA o cualquier equipo solo con CPU; cada script escoge su motor según el
 equipo (`skills/studio-edit/scripts/equipo.py`). Qué corre dónde, tiempos medidos y cómo planear con poco cómputo: [`COMPUTO.md`](COMPUTO.md).
 
-## Instalación local
+## Instalar
 
-Las carpetas se enlazan en `~/.claude` para que Claude Code las cargue:
+**Todo, con el agente** (plugin de Claude Code):
 
 ```bash
-for s in skills/*; do ln -s "$PWD/$s" ~/.claude/skills/$(basename $s); done
-ln -s "$PWD/agents/compas-studio.md" ~/.claude/agents/compas-studio.md
-cd skills/webclip/scripts && npm install && npx playwright install chromium
+/plugin install compas-studio --marketplace casimiror/compas-studio
 ```
 
-Después: `~/.venvs/studio/bin/python -I skills/studio-edit/scripts/equipo.py` para ver el nivel del equipo y qué falta instalar (detalle por nivel en `COMPUTO.md`).
+o en dos pasos: `/plugin marketplace add casimiror/compas-studio` y `/plugin install compas-studio@compas-studio`.
+
+**Solo las skills**, en Claude Code o en cualquier agente compatible (Codex, Cursor, OpenCode…), con la CLI de [skills](https://github.com/vercel-labs/skills):
+
+```bash
+npx skills add casimiror/compas-studio            # elige skills y agente
+npx skills add casimiror/compas-studio --all -g   # todas, para todos tus proyectos
+npx skills add casimiror/compas-studio --list     # ver qué trae
+```
+
+Instala las siete juntas: unas usan los scripts de otras (`<skills>/webclip/scripts/render.mjs`).
+
+**Después de instalar:**
+
+```bash
+cd <skills>/webclip/scripts && npm install && npx playwright install chromium
+python3 -I <skills>/studio-edit/scripts/equipo.py   # nivel del equipo y qué falta instalar
+```
+
+`<skills>` es donde quedaron las skills (`~/.claude/skills`, `.claude/skills`, `.agents/skills`…). Qué instalar según el equipo
+(Mac con Apple Silicon, GPU NVIDIA o solo CPU) y las alternativas si algo no corre: [`COMPUTO.md`](COMPUTO.md).
+
+Cada empresa necesita su carpeta de marketing (fuera del repo) registrada en `~/.config/compas-studio/proyectos.md`:
+
+```markdown
+| Empresa | Carpeta de marketing | Skills propias | Notas |
+|---|---|---|---|
+| Mi Marca | `~/marcas/mi-marca/marketing/` | — | — |
+```
 
 ## Licencia
 

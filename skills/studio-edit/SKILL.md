@@ -12,6 +12,8 @@ description: >
 
 # studio-edit
 
+> `<skills>` es la carpeta donde quedaron instaladas las skills (por ejemplo `~/.claude/skills` o `.claude/skills` del proyecto). Las skills de Compas Studio se instalan juntas, así que una puede usar los scripts de otra.
+
 **La idea:** nunca se le pide todo a un solo motor. Cada capa la hace la herramienta que mejor la hace, se revisa por
 separado, y ffmpeg las apila al final. Un error en una capa se arregla rehaciendo solo esa capa.
 
@@ -42,8 +44,8 @@ YOLO, torch en MPS, CUDA o CPU). Qué corre en cada nivel, tiempos y cómo plane
 - Python: `~/.venvs/studio` (3.11, torch con MPS, ultralytics, scenedetect, librosa, mlx-whisper, rembg, transformers, opentimelineio).
   Siempre `~/.venvs/studio/bin/python -I <script>`.
 - Voz: Chatterbox en `~/.venvs/chatterbox` (la voz de referencia de cada proyecto está en su `brand.md`).
-- Render de capas: `node ~/.claude/skills/webclip/scripts/render.mjs <capa.html> --out <capa.webm> --transparent [--duration S]`.
-- Scripts en `~/.claude/skills/studio-edit/scripts/`; plantillas en `templates/`.
+- Render de capas: `node <skills>/webclip/scripts/render.mjs <capa.html> --out <capa.webm> --transparent [--duration S]`.
+- Scripts en `<skills>/studio-edit/scripts/`; plantillas en `templates/`.
 
 ## Scripts
 

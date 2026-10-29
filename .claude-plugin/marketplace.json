@@ -1,0 +1,20 @@
+{
+  "name": "compas-studio",
+  "owner": { "name": "casimiror" },
+  "plugins": [
+    {
+      "name": "compas-studio",
+      "source": "./",
+      "description": "Agente compas-studio y sus skills: studio-estratega, studio-direccion, studio-concept, reel-craft, analizar-video, studio-edit, webclip.",
+      "skills": [
+        "./skills/studio-estratega",
+        "./skills/studio-direccion",
+        "./skills/studio-concept",
+        "./skills/reel-craft",
+        "./skills/analizar-video",
+        "./skills/studio-edit",
+        "./skills/webclip"
+      ]
+    }
+  ]
+}

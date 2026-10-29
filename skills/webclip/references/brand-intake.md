@@ -1,10 +1,12 @@
 # Brand intake — assisted, not silent, not a full interview
 
+> `<skills>` is the folder where the skills are installed (e.g. `~/.claude/skills` or the project's `.claude/skills`). Compas Studio skills are installed together, so one can call another's scripts.
+
 `scripts/probe-brand.mjs` does a best-effort scan of the current project. Run it from
 the project root before writing any composition:
 
 ```bash
-node ~/.claude/skills/webclip/scripts/probe-brand.mjs
+node <skills>/webclip/scripts/probe-brand.mjs
 ```
 
 It looks for, in order:

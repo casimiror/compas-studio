@@ -1,0 +1,10 @@
+{
+  "name": "compas-studio",
+  "description": "Agencia de contenido en video con agentes: estrategia de redes, dirección de producción, edición con ML de código abierto (Whisper, YOLO, SAM 2.1, Depth Anything, Chatterbox) y métricas.",
+  "version": "0.1.0",
+  "author": { "name": "casimiror" },
+  "homepage": "https://github.com/casimiror/compas-studio",
+  "repository": "https://github.com/casimiror/compas-studio",
+  "license": "MIT",
+  "keywords": ["video", "reels", "social-media", "marketing", "agents", "skills", "machine-learning"]
+}
