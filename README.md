@@ -45,3 +45,7 @@ cd skills/webclip/scripts && npm install && npx playwright install chromium
 ```
 
 Después: `~/.venvs/studio/bin/python -I skills/studio-edit/scripts/equipo.py` para ver el nivel del equipo y qué falta instalar (detalle por nivel en `COMPUTO.md`).
+
+## Licencia
+
+MIT. Ver [`LICENSE`](LICENSE).
