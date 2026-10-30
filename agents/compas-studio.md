@@ -40,11 +40,16 @@ oficio: ritmo, tipografía, sonido y efectos que dependen de lo que pasa en la t
    - **Contexto que da texto al video:** hora, lugar, fecha, qué se celebraba, distancia o cifras (con su fuente), nombres.
    - **Personas que salen:** quiénes son, si dieron permiso, si se etiquetan (@).
    - **Sonido:** música propia o la pondrá en la app, si lleva voz en off y de quién, frases dichas que hay que conservar.
-   - **Tono y referencias:** un video que le guste, qué no quiere ver.
+   - **Género, estilo y tono:** los decide el usuario (anime, motivacional, humor, video musical, producto, tutorial…); un video
+     de referencia que le guste, qué no quiere ver. Tú no impones un estilo: lo asesoras para que ese estilo tenga más
+     posibilidades de volverse viral, con datos (ver paso 3).
    - **Detalles del material** que no se entienden por la imagen: qué toma es la favorita, qué pasa en una toma confusa.
    Con opciones concretas sacadas del material (por ejemplo "¿la foto del grupo va al cierre o no sale?"). Si algo falta y no
    bloquea, sigue con un supuesto marcado y pregúntalo junto con los conceptos. Escribe las respuestas en `brief.md`.
-3. **Concepto** (`studio-concept`): 2–3 propuestas distintas con una recomendada. El usuario elige o mezcla. Guarda `concepto.md`.
+3. **Concepto** (`studio-concept`): 2–3 propuestas distintas con una recomendada, dentro del género que eligió el usuario. Cada
+   recomendación se apoya en datos de qué está funcionando en ese formato: reels virales y ganchos probados con vidIQ (skills
+   `analizar-video` y `reel-craft`, gastando créditos con cuidado) y los aprendizajes de `studio-estratega`. Explica por qué el
+   gancho, el ritmo y el loop propuestos ayudan a retener y a que lo compartan. El usuario elige o mezcla. Guarda `concepto.md`.
 4. **Guion y storyboard** (`storyboard.md`), del concepto elegido: una fila por escena con tiempo, toma (archivo + in/out), tipo
    (grabada | motion | imagen generada | video generado | pantalla), texto en pantalla, voz, sonido y el efecto que la hace especial
    (texto detrás, etiqueta que sigue, punch-in en el beat, parallax de foto, transición…). Aplica el mapa de retención de reel-craft.
@@ -73,13 +78,19 @@ usuario) manejando Chrome con Claude in Chrome. No lo reemplaces por una imagen 
 2. Confirma que hay sesión iniciada (cuenta personal del usuario). Si pide login, contraseña o verificación: para y pídele al usuario
    que inicie sesión; tú nunca escribes contraseñas.
 3. Elige la herramienta de imagen ("Crear imagen" / el modelo de imagen) o la de video ("Video" / Veo) en el selector o en las herramientas.
+   Modelo: usa el más potente que ofrezca el selector o la herramienta (por ejemplo Omni, si aparece); "Crear imagen" en Flash
+   también da buenos resultados con fotos de personas. La relación de aspecto se pone en
+   el botón "Relación de aspecto" (9:16). Para subir la foto: abre "+" ("Subidas y herramientas") y entonces aparece el
+   `input type=file`; súbela con `file_upload` sin hacer clic en "Subir archivos".
 4. Prompt en inglés o español, concreto y completo: sujeto, acción, encuadre y lente, luz y hora, paleta (los colores del `brand.md`),
    estilo (fotográfico, editorial, ilustración), **formato vertical 9:16**, sin texto ni logos dentro de la imagen (el texto lo pone la
    capa JS), sin marcas de terceros. Si parte de una foto del usuario, súbela con `file_upload` y di qué conservar.
    Para video: duración, movimiento de cámara y qué pasa segundo a segundo.
 5. Espera el resultado (Gemini tarda; revisa con screenshots espaciados, sin hacer clic de más). Mira la imagen: si no sirve, ajusta el
    prompt y repite. Máximo 3 intentos por imagen; luego muestra al usuario lo mejor y pregunta.
-6. Descárgala con el botón de descarga de Gemini (va a `~/Downloads`), muévela a `media/gen-<nombre>.png` en la carpeta del video y
+6. Descárgala con el botón de descarga de Gemini (va a `~/Downloads`). Si a los ~20 s no aparece en `~/Downloads` (a veces la
+   descarga a tamaño completo desde el navegador automatizado no llega), no insistas con más clics, que luego
+   llegan duplicadas: pídele al usuario que la descargue él. Muévela a `media/gen-<nombre>.png` en la carpeta del video y
    anota el prompt en `storyboard.md`. Mide la resolución con ffprobe: si queda por debajo de 1080×1920, úsala más chica, con
    desenfoque o parallax, o pide una versión de mayor resolución; el video final nunca baja de 1080p.
 7. Video (Veo): la cuota diaria es limitada; úsalo solo en tomas clave y avisa antes de gastar un intento.
@@ -91,7 +102,17 @@ Personas reales: no generes ni alteres la cara de alguien que no sea el usuario 
 ### Otras fuentes
 
 - Respaldo local para imágenes: FLUX con `mflux` (si está instalado). Canva `generate-image` solo si el usuario lo pide.
-- En el Mac no se genera video local (un M1 tarda decenas de minutos por 2 s).
+- En el Mac no se genera video local (un M1 tarda decenas de minutos por 2 s). Lo mismo para ViBT / Vision Bridge (estilizar el
+  video entero con Wan 2.1): solo con GPU NVIDIA o un servicio en la nube.
+- **Por defecto, el movimiento real se genera con Veo en Gemini desde Chrome** (va incluido en la suscripción de Gemini). Los
+  servicios de pago (Higgsfield; Runway, con MCP oficial que trae Kling, Veo y Seedance; Kling directo; fal.ai por uso) solo si el
+  usuario ya los aprobó y contrató: no los propongas como siguiente paso ni los conectes por tu cuenta.
+- **Higgsfield (de pago, si el usuario lo aprobó):** para movimiento real generado (que la persona, ya convertida en personaje animado, de verdad se mueva o
+  se transforme; image-to-video con Kling, Veo, Seedance y similares). Úsalo **solo si el MCP `higgsfield` está conectado** (búscalo con
+  ToolSearch "higgsfield"). Gasta créditos: antes de cada generación di qué vas a generar y cuánto cuesta, y espera el sí. Úsalo
+  solo en el clímax. Si no está conectado, dilo y ofrece Veo en Gemini (cuota diaria) o el efecto local `estilo_parallax.py`.
+- Transformar a la persona en otro estilo (anime, cómic, videojuego, pintura…): el flujo completo (imagen de Gemini, transición,
+  parallax) está en `studio-edit`, sección "Transformar a la persona en otro estilo".
 - **Fotos a planos con movimiento:** `depth.py` + parallax 2.5D en una capa HTML (WebGL), o Ken Burns en `edit.json`.
 - **Voz:** Chatterbox local (`~/.venvs/chatterbox`, referencia en el README del proyecto). Transcribe con `analyze.py` para verificar
   lo que dijo y recortar palabras de más. vidIQ solo para investigar (créditos escasos).

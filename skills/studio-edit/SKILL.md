@@ -3,7 +3,9 @@ name: studio-edit
 description: >
   Edita video real mezclándolo con motion graphics en JS: cortes, reencuadre vertical, zoom, color y transiciones
   con ffmpeg; transcript palabra a palabra (mlx-whisper); segmentación y seguimiento del sujeto (YOLO-seg, SAM 2.1,
-  BiRefNet) para poner texto DETRÁS de la persona o etiquetas que la siguen; profundidad para parallax 2.5D; capas
+  BiRefNet, MatAnyone 2 para recorte de precisión) para poner texto DETRÁS de la persona o etiquetas que la siguen;
+  profundidad para parallax 2.5D; transformar a la persona en otro estilo (anime, cómic, videojuego…: imagen de Gemini +
+  transición + parallax); capas
   HTML/GSAP con alfa renderizadas con webclip; mezcla de voz, música con ducking y volumen a -14 LUFS; QA con hojas de
   contacto; exporta la línea de tiempo a OTIO (FilmCraft, Resolve, Kdenlive). Úsala cuando haya material grabado que
   editar, "texto detrás de la persona", subtítulos animados, "que el texto siga al producto", reencuadrar horizontal a
@@ -41,6 +43,7 @@ YOLO, torch en MPS, CUDA o CPU). Qué corre en cada nivel, tiempos y cómo plane
 
 
 - SAM 2.1: `~/.venvs/sam-mlx` (Python 3.14 + `mlx-sam`, sin PyTorch). Pesos de YOLO en `~/.cache/studio-models/`.
+- MatAnyone 2: `~/.venvs/matanyone` (Python 3.12, torch con MPS), código en `~/.venvs/matanyone2-src`. Lo llama `matting.py`.
 - Python: `~/.venvs/studio` (3.11, torch con MPS, ultralytics, scenedetect, librosa, mlx-whisper, rembg, transformers, opentimelineio).
   Siempre `~/.venvs/studio/bin/python -I <script>`.
 - Voz: Chatterbox en `~/.venvs/chatterbox` (la voz de referencia de cada proyecto está en su `brand.md`).
@@ -53,7 +56,9 @@ YOLO, torch en MPS, CUDA o CPU). Qué corre en cada nivel, tiempos y cómo plane
 |---|---|---|
 | `analyze.py <video> <dir> [--beats] [--no-words]` | metadatos, escenas, `words.json` (whisper large-v3-turbo, español), beats, `contact.jpg` | ~5 s + 1 s por cada 10 s de voz |
 | `mask.py <video> <dir> [--engine yolo\|sam2\|rembg]` | `masks/`, `subject.mov` (ProRes 4444 con alfa), `track.json` | yolo ~4 s por segundo de video; sam2 ~5 s por segundo (MLX a 512); rembg ~30 s por segundo |
+| `matting.py <video> <dir> [--mask m.png] [--max-size N]` | recorte de precisión con MatAnyone 2: `alpha.mp4`, `subject.mov` (alfa suave) | ~1,4 s por frame a 1080p (3 s ≈ 2 min 20 s) |
 | `depth.py <img> <depth.png>` | mapa de profundidad (Depth Anything V2) para parallax | segundos |
+| `estilo_parallax.py <img> <mask> <bg> <out.mp4> [seg]` | anima una imagen fija en 2.5D: sujeto y fondo en capas, halo que palpita, líneas de velocidad, partículas, flash y temblor | segundos |
 | `pack.py <data.js> --words --track --extra [--offset]` | datos para las plantillas (`window.STUDIO`) | — |
 | `compose.py edit.json --stage base\|final --out X [--otio Y] [--dry]` | arma el video (formato en `references/edit-spec.md`) | ~2× tiempo real |
 | `qa.py <video> <dir> --ig` | medidas, LUFS, pico, negros, congelados, silencio inicial, `sheet.jpg` con zonas seguras, frame0/mid/last | segundos |
@@ -66,6 +71,34 @@ Motores de `mask.py`:
   `--size 512` (por defecto, ~0,1 s/frame) da casi el mismo borde que 1024 (~0,65 s/frame); la máscara sale siempre en la resolución del video.
   Es la opción para producto (tarro, tenis) y para personas cuando hay más gente en cuadro.
 - `rembg --rembg-model birefnet-portrait|birefnet-general`: el mejor borde (pelo, producto), el más lento. Para tomas cortas y planos detalle.
+  También es el que recorta personas **dibujadas** (ilustraciones generadas con Gemini): YOLO no las detecta.
+
+**YOLO es el motor principal** (rápido y suficiente casi siempre). **MatAnyone 2 (`matting.py`) solo cuando haga falta precisión**:
+cambiar el fondo completo, planos cerrados, cuando el halo de YOLO se nota (YOLO deja un borde oscuro alrededor del cuerpo y
+recortes imperfectos con mancuernas). MatAnyone 2 da alfa suave de video entero, pero solo recorta personas: un objeto en la mano
+(mancuerna, producto) queda fuera salvo que la `--mask` del primer frame lo incluya (hazla con `mask.py --engine sam2`).
+
+**ViBT / Vision Bridge (estilizar o colorear el video entero con Wan 2.1): no usar en Mac ni en equipos sin NVIDIA.** En Apple Silicon
+(M1 Pro) tarda más de 10 min solo en codificar 2 s, pesa unos 40 GB y trae CUDA fijo en el código. Solo se usa si el equipo tiene GPU
+NVIDIA con VRAM de sobra (`equipo.py` en nivel `cuda`) o un servicio en la nube que lo ofrezca.
+
+## Transformar a la persona en otro estilo
+
+El estilo lo elige el usuario (anime, cómic, videojuego, pintura, plastilina…); aquí está la técnica, igual para todos.
+
+1. **La imagen:** un frame del video (`ffmpeg -ss T -frames:v 1`) se sube a Gemini (flujo en el agente `compas-studio`) con el
+   prompt: "redibuja esta foto exacta en estilo <estilo elegido>, MISMA pose, MISMO encuadre 9:16, mismos rasgos, ropa y objetos;
+   fondo en el mismo estilo; <efecto opcional: aura, brillo…>; sin texto". Gemini conserva la pose casi idéntica, así que el corte
+   real → ilustración coincide cuadro a cuadro. Si alguien sale cerca en el frame, pide que lo quite.
+2. **La transición** (ffmpeg o capa JS):
+   - barrido de escaneo: `xfade=wipedown` de 0,6 s + una línea de luz con `drawbox` que baja con `t` (por donde pasa ya es ilustración);
+   - cruce de texto: una palabra pasa delante del sujeto y al salir ya es ilustración (encaja si la pieza ya usa texto detrás del sujeto);
+   - flash blanco: corta a la ilustración en el blanco.
+3. **El movimiento:**
+   - `estilo_parallax.py` (local, gratis): recorta el dibujo con `rembg` BiRefNet, rellena el fondo con `cv2.inpaint` y lo anima.
+     **Es un efecto de acento, no la transformación potente**: la persona no se mueve, solo la cámara y los efectos. Úsalo en 1–3 s. Con zoom fuerte un brazo estirado se sale de cuadro: baja el zoom.
+   - Movimiento real (que la persona de verdad se mueva o se transforme): image-to-video generado. Ver
+     "Generar lo que no se grabó" en `compas-studio` (Veo en Gemini por defecto; servicios de pago solo si el usuario los aprobó).
 
 ## Plantillas (`templates/`)
 
